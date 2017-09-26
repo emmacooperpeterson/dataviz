@@ -23,3 +23,20 @@ acc <- bind_rows(acc2014, acc2015)
 
 #frequency table for RUR_URB
 count(acc, vars=RUR_URB) # ~30k NA values because this column was only present in one of the two dataframes
+
+#read fips data
+fips <- read_csv("~/Desktop/Repositories/dataviz/fips.csv")
+
+#convert acc state & county columns to character
+acc$STATE <- as.character(acc$STATE)
+acc$COUNTY <- as.character(acc$COUNTY)
+
+#add leading zeros
+acc$STATE <- str_pad(acc$STATE, 2, side=c("left"), pad="0")
+acc$COUNTY <- str_pad(acc$COUNTY, 3, side=c("left"), pad="0")
+
+#rename state & county columns
+acc <- rename(acc, "StateFIPSCode" = STATE, "CountyFIPSCode" = COUNTY)
+
+#combine acc and fips
+acc <- left_join(acc, fips, by = c("StateFIPSCode", "CountyFIPSCode"))
