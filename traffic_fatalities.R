@@ -40,3 +40,30 @@ acc <- rename(acc, "StateFIPSCode" = STATE, "CountyFIPSCode" = COUNTY)
 
 #combine acc and fips
 acc <- left_join(acc, fips, by = c("StateFIPSCode", "CountyFIPSCode"))
+
+#count fatalities by state
+fatalities <- group_by(acc, StateName, YEAR)
+agg <- summarise(fatalities, TOTAL = sum(FATALS))
+
+#convert to wide form and rename columns
+agg_wide <- spread(agg, YEAR, TOTAL)
+agg_wide <- rename(agg_wide, "year2014" = "2014", "year2015" = "2015")
+
+#calculate percent difference
+agg_wide <- mutate(agg_wide, percent_diff = (year2015 - year2014) / year2014)
+agg_wide <- arrange(agg_wide, desc(agg_wide$percent_diff))
+
+#capture states with > 15% change and remove NA state
+agg_wide <- filter(agg_wide, percent_diff > 0.15 & !is.na(StateName))
+
+#prior six steps using one assignment
+agg <- acc %>%
+  group_by(StateName, YEAR) %>%
+  summarise(TOTAL = sum(FATALS)) %>%
+  spread(YEAR, TOTAL) %>%
+  rename("year2014" = "2014", "year2015" = "2015") %>%
+  mutate(percent_diff = (year2015 - year2014) / year2014) %>%
+  arrange(desc(percent_diff)) %>%
+  filter(percent_diff > 0.15 & !is.na(StateName))
+
+glimpse(agg)
