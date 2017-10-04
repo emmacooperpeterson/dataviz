@@ -1,6 +1,6 @@
 # http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html
 
-# Building blocks of a graph include:
+#Building blocks of a graph include:
 
 # data
 # aesthetic mapping
