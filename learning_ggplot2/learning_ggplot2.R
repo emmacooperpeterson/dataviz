@@ -15,7 +15,7 @@
 setwd("~/Desktop/Repositories/dataviz/learning_ggplot2/")
 
 #look at housing prices
-housing <- read.csv("Rgraphics/dataSets/landdata-states.csv")
+housing <- read.csv("dataSets/landdata-states.csv")
 head(housing[1:5])
 
 #subset by date
