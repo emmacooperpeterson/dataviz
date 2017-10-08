@@ -1,4 +1,6 @@
 library("tidyverse")
+library(extrafont)
+loadfonts()
 
 setwd('~/Desktop/Repositories/dataviz/project/data/')
 
@@ -111,6 +113,7 @@ south_asia <- c("India")
 sub_sah_africa <- c("Togo", "Ghana", "Cameroon", "Nigeria", "Somalia")
 
 #region of crime location
+crime_locations$region <- NA
 crime_locations$region[crime_locations$state %in% south] <- "south"
 crime_locations$region[crime_locations$state %in% northeast] <- "northeast"
 crime_locations$region[crime_locations$state %in% west] <- "west"
@@ -120,11 +123,11 @@ crime_locations$region <- factor(crime_locations$region,
                                  levels(crime_locations$region)[c(1,2,4,3)])
 
 #region of entry point to u.s.
-entries$region <- NA
-entries$region[entries$name %in% south] <- "south"
-entries$region[entries$name %in% northeast] <- "northeast"
-entries$region[entries$name %in% west] <- "west"
-entries$region[entries$name %in% midwest] <- "midwest"
+entry_ports$region <- NA
+entry_ports$region[entry_ports$name %in% south] <- "south"
+entry_ports$region[entry_ports$name %in% northeast] <- "northeast"
+entry_ports$region[entry_ports$name %in% west] <- "west"
+entry_ports$region[entry_ports$name %in% midwest] <- "midwest"
 
 #defendant region of origin
 defendants$def_origin_region <- NA
@@ -137,6 +140,7 @@ defendants$def_origin_region[defendants$country_of_origin %in% south_asia] <- "s
 defendants$def_origin_region[defendants$country_of_origin %in% middle_east_n_af] <- "middle east and north africa"
 
 #victim region of origin
+victim_countries$origin_region <- NA
 victim_countries$origin_region[victim_countries$victimcountry %in% east_asia_pacific] <- "east asia and pacific"
 victim_countries$origin_region[victim_countries$victimcountry %in% europe_cent_asia] <- "europe and central asia"
 victim_countries$origin_region[victim_countries$victimcountry %in% latin_am_carib] <- "latin america and caribbean"
@@ -170,9 +174,9 @@ judges$white[judges$race != "White"] <- "non-white"
 
 #international trafficking flows to the united states
 int_vics <- filter(victim_countries, victimcountry != "United States")
-origin_entry <- inner_join(int_vics, entries)
+origin_entry <- inner_join(int_vics, entry_ports)
 origin_entry <- origin_entry[c("victimcountry", "name", "region", "origin_region")]
-origin_entry <- filter(entry_ports, !is.na(name) & !is.na(origin_region) & name != "Greyhound bus stop")
+origin_entry <- filter(origin_entry, !is.na(name) & !is.na(region) & name != "Greyhound bus stop")
 
 ggplot(origin_entry, aes(x=region, fill=origin_region)) +
   
@@ -189,31 +193,38 @@ ggplot(origin_entry, aes(x=region, fill=origin_region)) +
                               "Latin America & Caribbean", "North America",
                               "Sub-Saharan Africa")) +
   
-  theme(panel.grid.minor.x=element_blank(),
+  theme(plot.background = element_rect(fill="#F4F4F4"),
+        plot.margin=unit(c(1,1,1,1),"cm"),
+        plot.caption = element_text(family="Montserrat Light", size=6, 
+                                    margin=margin(t=20)),
+        plot.title = element_text(family="Montserrat", face="bold", size=15),
+        plot.subtitle = element_text(family="Courier New"),
+        
+        panel.background = element_rect(fill = "#F4F4F4"),
+        panel.grid.minor.x=element_blank(),
         panel.grid.major.x=element_blank(),
-        plot.background = element_rect(fill="#F4F4F4"),
+        panel.grid.major.y = element_line(color="black", size=0.25),
+        panel.grid.minor.y = element_blank(),
+        
+        legend.background = element_rect(fill="#F4F4F4"),
         legend.key = element_blank(),
         legend.title = element_text(family="Montserrat", size=10),
         legend.text = element_text(family="Courier New", size=8),
-        legend.background = element_rect(fill="#F4F4F4"),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.major.y = element_line(color="black", size=0.25),
-        panel.grid.minor.y = element_blank(),
-        axis.ticks.y = element_line(size=0),
-        axis.ticks.x = element_line(size=0),
-        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2)),
+        
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
         axis.text = element_text(family="Montserrat Light", size=7),
+        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2)),
         axis.title = element_text(family="Montserrat", size=8),
         axis.title.x = element_text(margin=margin(t=15)),
-        axis.title.y = element_text(margin=margin(r=15)),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6, 
-                                    margin=margin(t=20))) +
+        axis.title.y = element_text(margin=margin(r=15))) +
   
   scale_x_discrete(labels=c("Midwest", "Northeast", "South", "West")) +
-  scale_y_continuous(labels = percent)
+  scale_y_continuous(labels = c("0%", "20%", "40%", "60%"),
+                     breaks = c(0, 0.2, 0.4, 0.6))
+
+#save plot
+ggsave("../plots/international_flows.pdf")
 
 #length of prison sentence by trafficking type
 judges_defendants <- inner_join(defendants, judges, by=c("judge_id" = "id"))
@@ -233,31 +244,37 @@ ggplot(jud_def_vic, aes(x=trafficking_type, y=total_sentence/12, fill=traffickin
                     labels=c("Labor", "Sex: \nadult victim(s)",
                              "Sex: \nminor victim(s)")) +
   
-  theme(panel.grid.minor.x=element_blank(),
+  theme(plot.background = element_rect(fill="#F4F4F4"),
+        plot.margin=unit(c(1,1,1,1),"cm"),
+        plot.caption = element_text(family="Montserrat Light", size=6),
+        plot.title = element_text(family="Montserrat", face="bold", size=15),
+        plot.subtitle = element_text(family="Courier New"),
+        
+        panel.background = element_rect(fill = "#F4F4F4"),
+        panel.grid.major.y = element_line(color="black", size=0.25),
+        panel.grid.minor.y = element_line(color="black", size=0.25),
+        panel.grid.minor.x=element_blank(),
         panel.grid.major.x=element_blank(),
-        plot.background = element_rect(fill="#F4F4F4"),
+        
         legend.key = element_blank(),
         legend.title = element_text(family="Montserrat", size=10),
         legend.text = element_text(family="Courier New", size=8),
         legend.background = element_rect(fill="#F4F4F4"),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.major.y = element_line(color="black", size=0.25),
-        panel.grid.minor.y = element_line(color="black", size=0.25),
+        
         axis.ticks.y = element_line(size=0),
         axis.ticks.x = element_line(size=0),
         axis.text.y = element_text(family="Montserrat Light", size=7),
         axis.text.x = element_blank(),
         axis.title = element_text(family="Montserrat", size=8),
         axis.title.x = element_blank(),
-        axis.title.y = element_text(margin=margin(r=15)),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6)) +
+        axis.title.y = element_text(margin=margin(r=15))) +
   
   scale_y_continuous(limits=c(-0, 50)) +
   
   guides(fill=guide_legend(keywidth=0.5, keyheight=1, default.unit="cm"))
+
+#save plot
+ggsave("../plots/sentence_by_type.pdf")
 
 #cases by us region and trafficking type
 case_loc <- inner_join(cases, crime_locations, by="case_id")
@@ -276,29 +293,34 @@ ggplot(filter(case_loc, !is.na(region)), aes(x=region, fill=trafficking_type)) +
                     labels=c("Labor", "Sex: \nadult victim(s)",
                              "Sex: \nminor victim(s)")) +
   
-  theme(panel.grid.minor.y=element_blank(),
+  theme(plot.background = element_rect(fill="#F4F4F4"),
+        plot.margin=unit(c(1,1,1,1),"cm"),
+        plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=15)),
+        plot.title = element_text(family="Montserrat", face="bold", size=15),
+        plot.subtitle = element_text(family="Courier New"),
+        
+        panel.background = element_rect(fill = "#F4F4F4"),
+        panel.grid.major.x = element_line(color="black", size=0.25),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y=element_blank(),
         panel.grid.major.y=element_blank(),
-        plot.background = element_rect(fill="#F4F4F4"),
+
         legend.key = element_blank(),
         legend.title = element_text(family="Montserrat", size=10),
         legend.text = element_text(family="Courier New", size=8),
         legend.background = element_rect(fill="#F4F4F4"),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.major.x = element_line(color="black", size=0.25),
-        panel.grid.minor.x = element_blank(),
-        axis.ticks.y = element_line(size=0),
-        axis.ticks.x = element_line(size=0),
+
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
         axis.text.y = element_text(family="Montserrat Light", size=7),
         axis.title = element_text(family="Montserrat", size=8),
         axis.title.y = element_text(margin=margin(r=15)),
-        axis.title.x = element_text(margin=margin(t=15)),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=15))) +
+        axis.title.x = element_text(margin=margin(t=15))) +
   
   guides(fill=guide_legend(keywidth=0.5, keyheight=0.5, default.unit="cm")) +
   scale_x_discrete(labels=c("Midwest", "Northeast", "West", "South"))
 
+#save plot
+ggsave("../plots/cases_by_region_by_type.pdf")
 
 

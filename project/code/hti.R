@@ -1,4 +1,7 @@
 library(tidyverse)
+library(extrafont)
+library(haven)
+loadfonts()
 
 setwd('~/Desktop/Repositories/dataviz/project/data/')
 
@@ -57,28 +60,31 @@ ggplot(victim_services, aes(x=year, y=percentage, color=victimservices)) +
                        values=c("#303841", "#F6C90E"), 
                        labels=c("Not Offered", "Offered")) +
 
-  theme(panel.grid.minor.x=element_blank(),
+  theme(plot.background = element_rect(fill="#F4F4F4"),
+        plot.title = element_text(family="Montserrat", face="bold", size=15),
+        plot.subtitle = element_text(family="Courier New"),
+        plot.caption = element_text(family="Montserrat Light", size=6, 
+                                    margin=margin(t=20)),
+        plot.margin=unit(c(1,1,1,1),"cm"),
+        
+        panel.background = element_rect(fill = "#F4F4F4"),
+        panel.grid.minor.x=element_blank(),
         panel.grid.major.x=element_blank(),
-        plot.background = element_rect(fill="#F4F4F4"),
+        panel.grid.major.y = element_line(color="black", size=0.25),
+        panel.grid.minor.y = element_blank(),
+        
+        legend.background = element_rect(fill="#F4F4F4"),
         legend.key = element_blank(),
         legend.title = element_text(family="Montserrat", size=10),
         legend.text = element_text(family="Courier New", size=8),
-        legend.background = element_rect(fill="#F4F4F4"),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.major.y = element_line(color="black", size=0.25),
-        panel.grid.minor.y = element_blank(),
-        axis.ticks.y = element_line(size=0),
-        axis.ticks.x = element_line(size=0),
-        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2)),
+        
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
         axis.text = element_text(family="Montserrat Light", size=7),
+        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2)),
         axis.title = element_text(family="Montserrat", size=8),
         axis.title.x = element_text(margin=margin(t=15)),
-        axis.title.y = element_text(margin=margin(r=15)),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6, 
-                                    margin=margin(t=20))) +
+        axis.title.y = element_text(margin=margin(r=15))) +
 
   scale_x_continuous(breaks=seq(2001,2011),
                      labels=seq(2001,2011)) +
@@ -87,3 +93,5 @@ ggplot(victim_services, aes(x=year, y=percentage, color=victimservices)) +
                      labels=c("10%", "20%", "30%", "40%", "50%", "60%"))
 
 
+#save plot
+ggsave("../plots/victim_services.pdf")
