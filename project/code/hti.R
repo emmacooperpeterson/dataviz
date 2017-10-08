@@ -2,8 +2,15 @@ library(tidyverse)
 
 setwd('~/Desktop/Repositories/dataviz/project/data/')
 
-#read data
+#################
+### LOAD DATA ###
+#################
+
 hti <- read_dta("hti/hti_data.dta")
+
+################
+### CLEANING ###
+################
 
 variables <- c("country", "ccode", "year", "tier", "minstand", "efforts",
                "domesticlaws", "enforcement", "convictinfo", "prosnum",
@@ -13,6 +20,12 @@ variables <- c("country", "ccode", "year", "tier", "minstand", "efforts",
                "CEDAW_rat", "ILO29", "ILO105", "ILO182")
 
 hti <- hti[variables]
+
+#############
+### PLOTS ###
+#############
+
+#victim services by year
 
 #number of countries offering victim services by year
 victim_services <- hti %>% group_by(victimservices, year) %>% tally()
@@ -31,7 +44,6 @@ victim_services$victimservices[victim_services$victimservices == 1] <- "yes"
 #ignore unknown
 victim_services <- subset(victim_services, victimservices != "unknown" )
 
-#plot
 ggplot(victim_services, aes(x=year, y=percentage, color=victimservices)) +
   
   geom_line() +
