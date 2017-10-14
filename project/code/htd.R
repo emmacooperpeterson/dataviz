@@ -128,6 +128,10 @@ entry_ports$region[entry_ports$name %in% south] <- "south"
 entry_ports$region[entry_ports$name %in% northeast] <- "northeast"
 entry_ports$region[entry_ports$name %in% west] <- "west"
 entry_ports$region[entry_ports$name %in% midwest] <- "midwest"
+entry_ports$region[entry_ports$state %in% south] <- "south"
+entry_ports$region[entry_ports$state %in% northeast] <- "northeast"
+entry_ports$region[entry_ports$state %in% west] <- "west"
+entry_ports$region[entry_ports$state %in% midwest] <- "midwest"
 
 #defendant region of origin
 defendants$def_origin_region <- NA
@@ -172,6 +176,32 @@ judges$white[judges$race != "White"] <- "non-white"
 ### PLOTS ###
 #############
 
+my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
+                  plot.margin=unit(c(1,1,1,1),"cm"),
+                  plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=20)),
+                  plot.title = element_text(family="Montserrat", face="bold", size=15),
+                  plot.subtitle = element_text(family="Courier New"),
+                  
+                  panel.background = element_rect(fill = "#F4F4F4"),
+                  panel.grid.major.y = element_line(color="black", size=0.25),
+                  panel.grid.minor.y = element_line(color="black", size=0.25),
+                  panel.grid.minor.x=element_blank(),
+                  panel.grid.major.x=element_blank(),
+                  
+                  legend.background = element_rect(fill="#F4F4F4"),
+                  legend.key = element_blank(),
+                  legend.title = element_text(family="Montserrat", size=10),
+                  legend.text = element_text(family="Courier New", size=8),
+                  
+                  axis.ticks.y = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  axis.text = element_text(family="Montserrat Light", size=7),
+                  axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-10)),
+                  axis.title = element_text(family="Montserrat", size=8),
+                  axis.title.x = element_text(margin=margin(t=15)),
+                  axis.title.y = element_text(margin=margin(r=15)))
+
+
 #international trafficking flows to the united states
 int_vics <- filter(victim_countries, victimcountry != "United States")
 origin_entry <- inner_join(int_vics, entry_ports)
@@ -193,32 +223,10 @@ ggplot(origin_entry, aes(x=region, fill=origin_region)) +
                               "Latin America & Caribbean", "North America",
                               "Sub-Saharan Africa")) +
   
-  theme(plot.background = element_rect(fill="#F4F4F4"),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6, 
-                                    margin=margin(t=20)),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.minor.x=element_blank(),
-        panel.grid.major.x=element_blank(),
-        panel.grid.major.y = element_line(color="black", size=0.25),
-        panel.grid.minor.y = element_blank(),
-        
-        legend.background = element_rect(fill="#F4F4F4"),
-        legend.key = element_blank(),
-        legend.title = element_text(family="Montserrat", size=10),
-        legend.text = element_text(family="Courier New", size=8),
-        
-        axis.ticks.y = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.text = element_text(family="Montserrat Light", size=7),
-        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2)),
-        axis.title = element_text(family="Montserrat", size=8),
-        axis.title.x = element_text(margin=margin(t=15)),
-        axis.title.y = element_text(margin=margin(r=15))) +
+  my_theme+
   
+  theme(panel.grid.minor.y = element_blank()) +
+        
   scale_x_discrete(labels=c("Midwest", "Northeast", "South", "West")) +
   scale_y_continuous(labels = c("0%", "20%", "40%", "60%"),
                      breaks = c(0, 0.2, 0.4, 0.6))

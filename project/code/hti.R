@@ -47,9 +47,38 @@ victim_services$victimservices[victim_services$victimservices == 1] <- "yes"
 #ignore unknown
 victim_services <- subset(victim_services, victimservices != "unknown" )
 
+############
+### PLOT ###
+############
+
+my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
+                  plot.margin=unit(c(1,1,1,1),"cm"),
+                  plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=20)),
+                  plot.title = element_text(family="Montserrat", face="bold", size=15),
+                  plot.subtitle = element_text(family="Courier New"),
+                  
+                  panel.background = element_rect(fill = "#F4F4F4"),
+                  panel.grid.major.y = element_line(color="black", size=0.25),
+                  panel.grid.minor.y = element_line(color="black", size=0.25),
+                  panel.grid.minor.x=element_blank(),
+                  panel.grid.major.x=element_blank(),
+                  
+                  legend.background = element_rect(fill="#F4F4F4"),
+                  legend.key = element_blank(),
+                  legend.title = element_text(family="Montserrat", size=10),
+                  legend.text = element_text(family="Courier New", size=8),
+                  
+                  axis.ticks.y = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  axis.text = element_text(family="Montserrat Light", size=7),
+                  axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-10)),
+                  axis.title = element_text(family="Montserrat", size=8),
+                  axis.title.x = element_text(margin=margin(t=15)),
+                  axis.title.y = element_text(margin=margin(r=15)))
+
 ggplot(victim_services, aes(x=year, y=percentage, color=victimservices)) +
   
-  geom_line() +
+  geom_line(size=1) +
   
   labs(y = "Number of Countries Providing Victim Services", x = "Year", 
        title="Services for Victims of Human Trafficking",
@@ -60,31 +89,10 @@ ggplot(victim_services, aes(x=year, y=percentage, color=victimservices)) +
                        values=c("#303841", "#F6C90E"), 
                        labels=c("Not Offered", "Offered")) +
 
-  theme(plot.background = element_rect(fill="#F4F4F4"),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        plot.caption = element_text(family="Montserrat Light", size=6, 
-                                    margin=margin(t=20)),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.minor.x=element_blank(),
-        panel.grid.major.x=element_blank(),
-        panel.grid.major.y = element_line(color="black", size=0.25),
-        panel.grid.minor.y = element_blank(),
-        
-        legend.background = element_rect(fill="#F4F4F4"),
-        legend.key = element_blank(),
-        legend.title = element_text(family="Montserrat", size=10),
-        legend.text = element_text(family="Courier New", size=8),
-        
-        axis.ticks.y = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.text = element_text(family="Montserrat Light", size=7),
-        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2)),
-        axis.title = element_text(family="Montserrat", size=8),
-        axis.title.x = element_text(margin=margin(t=15)),
-        axis.title.y = element_text(margin=margin(r=15))) +
+  my_theme +
+  
+  theme(panel.grid.minor.y = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-5))) +
 
   scale_x_continuous(breaks=seq(2001,2011),
                      labels=seq(2001,2011)) +
