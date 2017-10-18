@@ -96,7 +96,8 @@ combined$region[combined$country %in% middle_east_n_af] <- "middle east and nort
 
 my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
                   plot.margin=unit(c(1,1,1,1),"cm"),
-                  plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=20)),
+                  plot.caption = element_text(family="Montserrat Light", size=6,
+                                              margin=margin(t=20)),
                   plot.title = element_text(family="Montserrat", face="bold", size=15),
                   plot.subtitle = element_text(family="Courier New"),
                   
@@ -122,11 +123,11 @@ my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
 ggplot(combined, aes(x=hdi_score, y=ht_index)) +
   geom_jitter(aes(color=region, size=prosecutions), alpha=0.75) +
   geom_smooth(se=FALSE, color="black") +
-
-labs(y = "Human Trafficking Index (15 = best score)", x = "Human Development Index (1=best score)", 
-     title="Human Trafficking & Human Development",
-     subtitle="Local quality of life associated with stronger anti-trafficking policies",
-     caption="Source: '3P' Anti-trafficking Policy Index & U.N. Human Development Index") +
+  
+  labs(y = "Human Trafficking Index (15 = best score)", x = "Human Development Index (1=best score)", 
+       title="Local quality of life associated with stronger \nanti-trafficking policies",
+       subtitle="Human trafficking & human development",
+       caption="Source: '3P' Anti-trafficking Policy Index & U.N. Human Development Index") +
   
   my_theme +
   
@@ -137,18 +138,19 @@ labs(y = "Human Trafficking Index (15 = best score)", x = "Human Development Ind
         axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-10)),
         axis.title = element_text(family="Montserrat", size=8)) +
   
-        scale_color_manual(name="Region",
-                     values=c("#303841", "#F6C90E", "#40616d", "#141607", "#9A9B94", "#7d8b2e", "#EA9215"), 
+  scale_color_manual(name="Region",
+                     values=c("#303841", "#F6C90E", "#40616d", "#141607", 
+                              "#9A9B94", "#7d8b2e", "#EA9215"), 
                      labels=c("East Asia & Pacific", "Europe & Central Asia",
                               "Latin America & Caribbean", "Middle East & North Africa", 
                               "North America", "South Asia", "Sub-Saharan Africa")) +
-        scale_size_continuous(range=c(1,10), name="Number of Prosecutions \n(2000-2011)") +
+  scale_size_continuous(range=c(1,10), name="Number of Prosecutions \n(2000-2011)") +
   
-        scale_y_continuous(breaks=c(4,6,8,10,12,14),
-                           labels=c(4,6,8,10,12,14)) +
+  scale_y_continuous(breaks=c(4,6,8,10,12,14),
+                     labels=c(4,6,8,10,12,14)) +
   
-        scale_x_continuous(breaks=seq(0,1,by=0.2),
-                           labels=seq(0,1,by=0.2))
+  scale_x_continuous(breaks=seq(0,1,by=0.2),
+                     labels=seq(0,1,by=0.2))
 
 #save plot
-ggsave("../plots/human_dev_human_traf.pdf")
+#ggsave("../plots/human_dev_human_traf.pdf")

@@ -24,12 +24,6 @@ variables <- c("country", "ccode", "year", "tier", "minstand", "efforts",
 
 hti <- hti[variables]
 
-#############
-### PLOTS ###
-#############
-
-#victim services by year
-
 #number of countries offering victim services by year
 victim_services <- hti %>% group_by(victimservices, year) %>% tally()
 
@@ -53,7 +47,8 @@ victim_services <- subset(victim_services, victimservices != "unknown" )
 
 my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
                   plot.margin=unit(c(1,1,1,1),"cm"),
-                  plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=20)),
+                  plot.caption = element_text(family="Montserrat Light", size=6,
+                                              margin=margin(t=20)),
                   plot.title = element_text(family="Montserrat", face="bold", size=15),
                   plot.subtitle = element_text(family="Courier New"),
                   
@@ -81,25 +76,25 @@ ggplot(victim_services, aes(x=year, y=percentage, color=victimservices)) +
   geom_line(size=1) +
   
   labs(y = "Number of Countries Providing Victim Services", x = "Year", 
-       title="Services for Victims of Human Trafficking",
-       subtitle="Majority of countries fail to provide services for victims",
+       title="Majority of countries fail to provide \nservices for victims",
+       subtitle="Countries providing services for victims \nof human trafficking, 2000-2011",
        caption="Source: Human Trafficking Indicators, 2000-2011 (Harvard Dataverse)") +
   
   scale_color_manual(name="Victim\nServices",
-                       values=c("#303841", "#F6C90E"), 
-                       labels=c("Not Offered", "Offered")) +
-
+                     values=c("#303841", "#F6C90E"), 
+                     labels=c("Not Offered", "Offered")) +
+  
   my_theme +
   
   theme(panel.grid.minor.y = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-5))) +
-
+        axis.text.x = element_text(angle = 45, hjust = 1, margin=margin(t=-2))) +
+  
   scale_x_continuous(breaks=seq(2001,2011),
                      labels=seq(2001,2011)) +
-
+  
   scale_y_continuous(breaks=c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
                      labels=c("10%", "20%", "30%", "40%", "50%", "60%"))
 
 
 #save plot
-ggsave("../plots/victim_services.pdf")
+#ggsave("../plots/victim_services.pdf")

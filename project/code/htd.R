@@ -160,17 +160,6 @@ cases$trafficking_type <- factor(cases$trafficking_type)
 cases$trafficking_type <- factor(cases$trafficking_type, 
                                     levels(cases$trafficking_type)[c(1,3,2)])
 
-#victim gender (majority)
-cases$vic_gender <- NA
-cases$vic_gender[cases$number_victims_female > cases$number_victims_male] <- "female"
-cases$vic_gender[cases$number_victims_male > cases$number_victims_female] <- "male"
-
-#judge variables
-judges$years_in_office <- 2017 - judges$tenure
-judges$white <- NA
-judges$white[judges$race == "White"] <- "white"
-judges$white[judges$race != "White"] <- "non-white"
-
 
 #############
 ### PLOTS ###
@@ -178,7 +167,8 @@ judges$white[judges$race != "White"] <- "non-white"
 
 my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
                   plot.margin=unit(c(1,1,1,1),"cm"),
-                  plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=20)),
+                  plot.caption = element_text(family="Montserrat Light", size=6,
+                                              margin=margin(t=20)),
                   plot.title = element_text(family="Montserrat", face="bold", size=15),
                   plot.subtitle = element_text(family="Courier New"),
                   
@@ -213,76 +203,32 @@ ggplot(origin_entry, aes(x=region, fill=origin_region)) +
   geom_bar(aes(y = (..count..) / sum(..count..))) +
   
   labs(y = "Percentage of Cases", x = "Point of Entry to the United States", 
-       title="International Trafficking Flows \nto the United States",
-       subtitle="Majority of U.S. cases involve Latin American & Caribbean \nvictims transported to the U.S. via the southern border",
+       title=paste("Majority of international U.S. cases involve \nLatin American", 
+                   "and Caribbean victims \ntransported to the U.S. via the", 
+                   "\nsouthern border", sep=""),
+       subtitle="International trafficking flows to the United States",
        caption="Source: www.HumanTraffickingData.org") +
   
   scale_fill_manual(name="Country of Origin",
-                     values=c("#303841", "#F6C90E", "#40616d", "#9A9B94", "#EA9215"), 
-                     labels=c("East Asia & Pacific", "Europe & Central Asia",
-                              "Latin America & Caribbean", "North America",
-                              "Sub-Saharan Africa")) +
+                    values=c("#303841", "#F6C90E", "#40616d", "#9A9B94", "#EA9215"), 
+                    labels=c("East Asia & Pacific", "Europe & Central Asia",
+                             "Latin America & Caribbean", "North America",
+                             "Sub-Saharan Africa")) +
   
-  my_theme+
+  my_theme +
   
-  theme(panel.grid.minor.y = element_blank()) +
-        
+  theme(panel.grid.minor.y = element_blank(),
+        axis.text.x = element_text(margin=margin(t=-2))) +
+  
   scale_x_discrete(labels=c("Midwest", "Northeast", "South", "West")) +
   scale_y_continuous(labels = c("0%", "20%", "40%", "60%"),
                      breaks = c(0, 0.2, 0.4, 0.6))
 
 #save plot
-ggsave("../plots/international_flows.pdf")
+#ggsave("../plots/international_flows.pdf")
 
-#length of prison sentence by trafficking type
-judges_defendants <- inner_join(defendants, judges, by=c("judge_id" = "id"))
-jud_def_vic <- inner_join(judges_defendants, cases, by="case_id")
-jud_def_vic <- filter(jud_def_vic, total_sentence < 999)
 
-ggplot(jud_def_vic, aes(x=trafficking_type, y=total_sentence/12, fill=trafficking_type)) +
-  geom_boxplot() +
-  
-  labs(y = "Length of Prison Sentence (years)", x = "Type of Trafficking", 
-       title="Length of Prison Sentence \nby Trafficking Type",
-       subtitle="Perpetrators of sex trafficking of \nminors receive longest sentences",
-       caption="Source: www.HumanTraffickingData.org") +
-  
-  scale_fill_manual(name="Type of Trafficking",
-                    values=c("#9A9B94", "#F6C90E", "#40616d"), 
-                    labels=c("Labor", "Sex: \nadult victim(s)",
-                             "Sex: \nminor victim(s)")) +
-  
-  theme(plot.background = element_rect(fill="#F4F4F4"),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.major.y = element_line(color="black", size=0.25),
-        panel.grid.minor.y = element_line(color="black", size=0.25),
-        panel.grid.minor.x=element_blank(),
-        panel.grid.major.x=element_blank(),
-        
-        legend.key = element_blank(),
-        legend.title = element_text(family="Montserrat", size=10),
-        legend.text = element_text(family="Courier New", size=8),
-        legend.background = element_rect(fill="#F4F4F4"),
-        
-        axis.ticks.y = element_line(size=0),
-        axis.ticks.x = element_line(size=0),
-        axis.text.y = element_text(family="Montserrat Light", size=7),
-        axis.text.x = element_blank(),
-        axis.title = element_text(family="Montserrat", size=8),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(margin=margin(r=15))) +
-  
-  scale_y_continuous(limits=c(-0, 50)) +
-  
-  guides(fill=guide_legend(keywidth=0.5, keyheight=1, default.unit="cm"))
 
-#save plot
-ggsave("../plots/sentence_by_type.pdf")
 
 #cases by us region and trafficking type
 case_loc <- inner_join(cases, crime_locations, by="case_id")
@@ -292,8 +238,9 @@ ggplot(filter(case_loc, !is.na(region)), aes(x=region, fill=trafficking_type)) +
   coord_flip() +
   
   labs(y = "Number of Cases (2000-2016)", x = "U.S. Region", 
-       title="Human Trafficking Cases \nby Region and Type",
-       subtitle="Prosecutions most common in the South, \nand for sex trafficking of minors",
+       title=paste("Human Trafficking prosecutions \nmost common in the South ",
+                   "and \nfor sex trafficking of minors", sep=""),
+       subtitle="Human trafficking cases by region and type",
        caption="Source: www.HumanTraffickingData.org") +
   
   scale_fill_manual(name="Type of Trafficking",
@@ -301,34 +248,17 @@ ggplot(filter(case_loc, !is.na(region)), aes(x=region, fill=trafficking_type)) +
                     labels=c("Labor", "Sex: \nadult victim(s)",
                              "Sex: \nminor victim(s)")) +
   
-  theme(plot.background = element_rect(fill="#F4F4F4"),
-        plot.margin=unit(c(1,1,1,1),"cm"),
-        plot.caption = element_text(family="Montserrat Light", size=6, margin=margin(t=15)),
-        plot.title = element_text(family="Montserrat", face="bold", size=15),
-        plot.subtitle = element_text(family="Courier New"),
-        
-        panel.background = element_rect(fill = "#F4F4F4"),
-        panel.grid.major.x = element_line(color="black", size=0.25),
-        panel.grid.minor.x = element_blank(),
+  my_theme +
+  
+  theme(panel.grid.major.x = element_line(color="black", size=0.25),
         panel.grid.minor.y=element_blank(),
         panel.grid.major.y=element_blank(),
-
-        legend.key = element_blank(),
-        legend.title = element_text(family="Montserrat", size=10),
-        legend.text = element_text(family="Courier New", size=8),
-        legend.background = element_rect(fill="#F4F4F4"),
-
-        axis.ticks.y = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.text.y = element_text(family="Montserrat Light", size=7),
-        axis.title = element_text(family="Montserrat", size=8),
-        axis.title.y = element_text(margin=margin(r=15)),
-        axis.title.x = element_text(margin=margin(t=15))) +
+        axis.text.x = element_text(margin=margin(t=-2))) +
   
   guides(fill=guide_legend(keywidth=0.5, keyheight=0.5, default.unit="cm")) +
   scale_x_discrete(labels=c("Midwest", "Northeast", "West", "South"))
 
 #save plot
-ggsave("../plots/cases_by_region_by_type.pdf")
+#ggsave("../plots/cases_by_region_by_type.pdf")
 
 
