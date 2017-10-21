@@ -153,4 +153,4 @@ ggplot(combined, aes(x=hdi_score, y=ht_index)) +
                      labels=seq(0,1,by=0.2))
 
 #save plot
-#ggsave("../plots/human_dev_human_traf.pdf")
+ggsave("../plots/human_dev_human_traf.pdf")

@@ -2,6 +2,7 @@ library(tidyverse)
 library(extrafont)
 library(lubridate)
 library(slopegraph)
+library(reshape2)
 loadfonts()
 
 setwd('~/Desktop/Repositories/dataviz/project/data/')
@@ -12,18 +13,18 @@ setwd('~/Desktop/Repositories/dataviz/project/data/')
 
 cases <- read_csv("htd/cases.csv")
 
-cases$year <- year(cases$start_date)
+#cases$year <- year(cases$start_date)
+cases$year <- substr(cases$start_date, 1, 4)
 state_by_year <- summarize(group_by(cases, state, year), num_cases = n())
 state_by_year <- filter(state_by_year, !is.na(state) & !is.na(year))
 state_by_year_wide <- dcast(state_by_year, state ~ year)
 state_by_year_wide[is.na(state_by_year_wide)] <- 0
 
 #remove 2015 and 2016 bc they don't seem complete
-state_by_year_wide <- state_by_year_wide[, 1:15]
+state_by_year_wide <- state_by_year_wide[, 1:16]
 
 #add ranks
 rank <- seq(1,50)
-cols <- colnames(state_year_wide)
 
 state_by_year_wide <- state_by_year_wide[order(state_by_year_wide$'2000', decreasing = TRUE),]
 state_by_year_wide$'2000' <- rank
@@ -106,10 +107,24 @@ my_theme <- theme(plot.background = element_rect(fill="#F4F4F4"),
                   axis.title.x = element_text(margin=margin(t=15)),
                   axis.title.y = element_text(margin=margin(r=15)))
 
-cols <- `[<-`(rep("#9A9B94", 50), 6, "#EA9215")
+cols <- rep("#9A9B94", 50)
+cols[6] <- "#303841"
+cols[44] <- "#EA9215"
+
+widths <- rep(0.15, 50)
+widths[c(6,44)] <- 1
 
 ggslopegraph(state_by_year_wide,  offset.x = 0.13, 
-             yrev = TRUE,
-             col.lines = cols, col.lab = cols, col.num=cols,
-             xlab = "Year", ylab = "Rank in HT Prosecutions (1=most prosecutions)") +
-  my_theme
+             yrev = TRUE, col.lines = cols, col.lab = cols, 
+             col.num=cols, lwd=widths,
+             xlab = "Year", 
+             ylab = "Rank in HT Prosecutions (1=most prosecutions)") +
+  
+  labs(title="South Dakota has demonstrated greatest \nincrease in trafficking prosecutions, \nwhile Alaska has demonstrated greatest drop",
+       subtitle="Relative rank in number of trafficking prosecutions per year",
+       caption="Source: www.HumanTraffickingData.org") +
+  
+  theme(axis.title.y = element_text(margin=margin(r=0))) +
+    my_theme
+
+ggsave("../plots/slopegraph.pdf")

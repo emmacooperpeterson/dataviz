@@ -1,5 +1,6 @@
-library("tidyverse")
+library(tidyverse)
 library(extrafont)
+library(waffle)
 loadfonts()
 
 setwd('~/Desktop/Repositories/dataviz/project/data/')
@@ -260,5 +261,93 @@ ggplot(filter(case_loc, !is.na(region)), aes(x=region, fill=trafficking_type)) +
 
 #save plot
 #ggsave("../plots/cases_by_region_by_type.pdf")
+
+##############
+### PLOT 3 ###
+##############
+
+#convert NA to 0
+to_convert <- c("number_victims", 
+                "number_victims_minor",
+                "number_victims_foreign",
+                "number_victims_female",
+                "number_victims_male",
+                "number_victims_unknown")
+
+cases[to_convert][is.na(cases[to_convert])] <- 0
+
+age <- c(`Adult (78%)` = sum(cases$number_victims) - 
+                            sum(cases$number_victims_minor),
+         `Minor (22%)` = sum(cases$number_victims_minor))
+
+gender <- c(`Female (93%)`= 6537, 
+            `Male (7%)` = 513)
+
+origin <- c(`Non-U.S. Citizen (66%)` = sum(cases$number_victims_foreign),
+           `U.S. Citizen (34%)` = sum(cases$number_victims) - 
+                                    sum(cases$number_victims_foreign))
+
+
+
+age_waffle <- waffle(age/50, rows=4, size=0.25, 
+                      colors=c("#303841", "#F6C90E")) + 
+  
+                    labs(title="Victims in U.S. human trafficking prosecutions \noverwhelmingly adult, female, non-citizens",
+                         subtitle="Age") +
+                    
+                    my_theme +
+                    
+                    theme(panel.background = element_blank(),
+                          legend.key.size = unit(.32, "cm"),
+                          axis.ticks.y = element_blank(),
+                          axis.ticks.x = element_blank(),
+                          axis.text = element_blank(),
+                          axis.title = element_text(margin=margin(t=15)),
+                          plot.background = element_rect(size=0))
+
+
+gender_waffle <- waffle(gender/50, rows=4, size=0.25, 
+                  colors=c("#40616d", "#9A9B94")) + 
+  
+                  labs(subtitle="Gender") +
+                  
+                  my_theme +
+                  
+                  theme(panel.background = element_blank(),
+                        legend.key.size = unit(.32, "cm"),
+                        axis.ticks.y = element_blank(),
+                        axis.ticks.x = element_blank(),
+                        axis.text = element_blank(),
+                        axis.title = element_text(margin=margin(t=15)),
+                        plot.background = element_rect(size=0),
+                        plot.margin=unit(c(0,1,1,1),"cm"))
+
+
+
+origin_waffle <- waffle(origin/50, rows=4, size=0.25, 
+                  colors=c("#7d8b2e", "#EA9215")) + 
+  
+                  labs(subtitle="Nationality",
+                       caption="Source: www.HumanTraffickingData.org",
+                       x = "1 square = 50 victims") +
+                  
+                  my_theme +
+                  
+                  theme(panel.background = element_blank(),
+                        legend.key.size = unit(.32, "cm"),
+                        axis.ticks.y = element_blank(),
+                        axis.ticks.x = element_blank(),
+                        axis.text = element_blank(),
+                        axis.title = element_text(margin=margin(t=15)),
+                        plot.background = element_rect(size=0),
+                        plot.margin=unit(c(0,1,1,1),"cm"))
+
+#it's called iron when you put them together how cute is that
+iron(age_waffle, gender_waffle, origin_waffle)
+
+
+###PLOT CRIME LOCATIONS (CITIES) ON MAP###
+###NEED TO GET LAT/LONG
+
 
 
